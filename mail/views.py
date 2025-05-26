@@ -24,25 +24,22 @@ def index(request):
 @csrf_exempt
 @login_required
 def compose(request):
+
     # Composing a new email must be via POST
     if request.method != "POST":
         return JsonResponse({"error": "POST request required."}, status=400)
 
-    # Get contents of email
-    data = json.loads(request.body)
-    recipients_emails = [email.strip() for email in data.get("recipients", "").split(",")]
-    subject = data.get("subject", "")
-    body = data.get("body", "")
-
     # Check recipient emails
-    if not recipients_emails or recipients_emails == [""]:
+    data = json.loads(request.body)
+    emails = [email.strip() for email in data.get("recipients").split(",")]
+    if emails == [""]:
         return JsonResponse({
             "error": "At least one recipient required."
         }, status=400)
 
     # Convert email addresses to users
     recipients = []
-    for email in recipients_emails:
+    for email in emails:
         try:
             user = User.objects.get(email=email)
             recipients.append(user)
@@ -51,56 +48,50 @@ def compose(request):
                 "error": f"User with email {email} does not exist."
             }, status=400)
 
-    # Create the email - single instance for sender
-    email = Email(
-        user=request.user,  # This ensures it appears in sender's sent mailbox
-        sender=request.user,
-        subject=subject,
-        body=body,
-        read=True  # Sent emails are automatically marked as read for sender
-    )
-    email.save()
-    
-    # Add all recipients
-    for recipient in recipients:
-        email.recipients.add(recipient)
-        
-        # Create a copy for each recipient in their inbox
-        recipient_email = Email(
-            user=recipient,
+    # Get contents of email
+    subject = data.get("subject", "")
+    body = data.get("body", "")
+
+    # Create one email for each recipient, plus sender
+    users = set()
+    users.add(request.user)
+    users.update(recipients)
+    for user in users:
+        email = Email(
+            user=user,
             sender=request.user,
             subject=subject,
             body=body,
-            read=False  # New emails are unread for recipients
+            read=user == request.user
         )
-        recipient_email.save()
-        recipient_email.recipients.add(recipient)
-    
+        email.save()
+        for recipient in recipients:
+            email.recipients.add(recipient)
+        email.save()
+
     return JsonResponse({"message": "Email sent successfully."}, status=201)
+
 
 @login_required
 def mailbox(request, mailbox):
+
+    # Filter emails returned based on mailbox
     if mailbox == "inbox":
         emails = Email.objects.filter(
-            user=request.user,
-            archived=False,
-            # Either received or sent (if you want to show sent in inbox too)
-            recipients=request.user
+            user=request.user, recipients=request.user, archived=False
         )
     elif mailbox == "sent":
         emails = Email.objects.filter(
-            user=request.user,
-            sender=request.user
+            user=request.user, sender=request.user
         )
     elif mailbox == "archive":
         emails = Email.objects.filter(
-            user=request.user,
-            archived=True,
-            recipients=request.user
+            user=request.user, recipients=request.user, archived=True
         )
     else:
         return JsonResponse({"error": "Invalid mailbox."}, status=400)
-    
+
+    # Return emails in reverse chronologial order
     emails = emails.order_by("-timestamp").all()
     return JsonResponse([email.serialize() for email in emails], safe=False)
 
@@ -186,4 +177,3 @@ def register(request):
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "mail/register.html")
-

@@ -2,19 +2,32 @@
 {% load static %}
 
 {% block body %}
-    <h2>{{ request.user.email }}</h2>
-
-    <button class="btn btn-sm btn-outline-primary" id="inbox">Inbox</button>
-    <button class="btn btn-sm btn-outline-primary" id="compose">Compose</button>
-    <button class="btn btn-sm btn-outline-primary" id="sent">Sent</button>
-    <button class="btn btn-sm btn-outline-primary" id="archived">Archived</button>
-    <a class="btn btn-sm btn-outline-primary" href="{% url 'logout' %}">Log Out</a>
-    <hr>
-
-    <div id="emails-view">
+<div class="container mt-4">
+    <!-- Header Section -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="font-weight-bold mb-0">📧 <strong>Mail</strong></h2>
+        </div>
+        <div class="text-right">
+            <span class="mr-3">{{ request.user.email }}</span>
+            <a class="btn btn-sm btn-outline-danger" href="{% url 'logout' %}">Log Out</a>
+        </div>
     </div>
 
-    <div id="compose-view">
+    <!-- Navigation Buttons -->
+    <div class="text-center mb-3">
+        <button class="btn btn-sm btn-outline-primary mx-1" id="inbox">Inbox</button>
+        <button class="btn btn-sm btn-outline-primary mx-1" id="compose">Compose</button>
+        <button class="btn btn-sm btn-outline-primary mx-1" id="sent">Sent</button>
+        <button class="btn btn-sm btn-outline-primary mx-1" id="archived">Archived</button>
+    </div>
+
+    <hr>
+
+    <!-- Email Views -->
+    <div id="emails-view"></div>
+
+    <div id="compose-view" style="display: none;">
         <h3>New Email</h3>
         <form id="compose-form">
             <div class="form-group">
@@ -27,16 +40,25 @@
                 <input class="form-control" id="compose-subject" placeholder="Subject">
             </div>
             <textarea class="form-control" id="compose-body" placeholder="Body"></textarea>
-            <input type="submit" class="btn btn-primary"/>
+            <input type="submit" class="btn btn-primary mt-2"/>
         </form>
     </div>
-    <!-- Add this new div for email viewing -->
+
     <div id="email-detail-view" style="display: none;">
         <!-- Single email content will be loaded here -->
     </div>
-
+</div>
 {% endblock %}
 
 {% block script %}
-    <script src="{% static 'mail/inbox.js' %}"></script>
+<script src="{% static 'mail/inbox.js' %}"></script>
+<style>
+    .card {
+        background-color: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    
+        </style>
 {% endblock %}
