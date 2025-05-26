@@ -1,0 +1,79 @@
+textarea {
+    min-height: 400px;
+}
+
+/* Email container styles */
+.emails-container {
+    margin-top: 20px;
+}
+
+.email {
+    border: 1px solid #ddd;
+    padding: 10px;
+    margin-bottom: 5px;
+    display: flex;
+    cursor: pointer;
+}
+
+.email:hover {
+    background-color: #f5f5f5;
+}
+
+.email.read {
+    background-color: #f9f9f9;
+}
+
+.email.unread {
+    background-color: white;
+    font-weight: bold;
+}
+
+.email-sender, .email-recipients, .email-subject, .email-timestamp {
+    padding: 0 10px;
+}
+
+.email-sender, .email-recipients {
+    width: 30%;
+}
+
+.email-subject {
+    width: 40%;
+}
+
+.email-timestamp {
+    width: 30%;
+    text-align: right;
+    color: #666;
+}
+
+/* Email detail view */
+.email-header {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+.email-body {
+    padding: 20px;
+    line-height: 1.6;
+    white-space: pre-line;
+}
+
+.email-actions {
+    margin-top: 15px;
+}
+
+.email-actions button {
+    margin-right: 10px;
+}
+
+/* Compose view */
+#compose-view {
+    margin-top: 20px;
+}
+
+#compose-form textarea {
+    height: 300px;
+    margin-bottom: 10px;
+}
